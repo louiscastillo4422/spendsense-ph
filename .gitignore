@@ -1,0 +1,11 @@
+node_modules
+dist
+dist-ssr
+*.local
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+
+# Machine-specific helpers for this PC's portable Node setup (not portable to other devices)
+dev.cmd
+.claude/
