@@ -3,7 +3,7 @@
 // and surfaced through "How was this calculated?" in the UI.
 // ---------------------------------------------------------------------------
 
-import type { AccountId, AppState, Goal, Transaction } from '../types'
+import type { AccountId, AppState, Category, Goal, Transaction } from '../types'
 import { daysBetween } from './format'
 
 export interface LineItem {
@@ -81,6 +81,46 @@ export function lastTransaction(state: AppState, id: AccountId): Transaction | u
   return [...state.transactions]
     .filter((t) => t.account === id)
     .sort((a, b) => +new Date(b.timestamp) - +new Date(a.timestamp))[0]
+}
+
+// --- Spending by category --------------------------------------------------
+
+export type SpendWindow = 'month' | '30d'
+
+export interface CategorySpend {
+  category: Category
+  amount: number
+  count: number
+  /** Share of total spend in the window, 0-100. */
+  pct: number
+}
+
+/**
+ * Total spending grouped by category for a window. Income and internal
+ * transfers are excluded; transfer fees still count (they are real spending).
+ * Result is sorted largest-first.
+ */
+export function spendingByCategory(
+  state: AppState,
+  window: SpendWindow = 'month',
+  from = new Date(),
+): { items: CategorySpend[]; total: number } {
+  const totals = new Map<Category, { amount: number; count: number }>()
+  let total = 0
+  for (const t of state.transactions) {
+    if (t.direction === 'in' || !countsForFlow(t)) continue
+    const inWindow = window === 'month' ? isThisMonth(t.timestamp, from) : daysBetween(new Date(t.timestamp), from) <= 30
+    if (!inWindow) continue
+    const cur = totals.get(t.category) ?? { amount: 0, count: 0 }
+    cur.amount += t.amount
+    cur.count += 1
+    totals.set(t.category, cur)
+    total += t.amount
+  }
+  const items: CategorySpend[] = [...totals.entries()]
+    .map(([category, v]) => ({ category, amount: v.amount, count: v.count, pct: total > 0 ? (v.amount / total) * 100 : 0 }))
+    .sort((a, b) => b.amount - a.amount)
+  return { items, total }
 }
 
 // --- Bills & savings due before payday -------------------------------------

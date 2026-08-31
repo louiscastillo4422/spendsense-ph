@@ -14,6 +14,7 @@ import { Automation } from './screens/Automation'
 import { TestSMS } from './screens/TestSMS'
 import { Security } from './screens/Security'
 import { Reports } from './screens/Reports'
+import { Insights } from './screens/Insights'
 
 function Shell() {
   const { state } = useApp()
@@ -40,6 +41,7 @@ function Shell() {
       {screen === 'testsms' && <TestSMS />}
       {screen === 'security' && <Security />}
       {screen === 'reports' && <Reports />}
+      {screen === 'insights' && <Insights />}
 
       <ToastHost />
       <TabBar current={screen} onChange={setScreen} />

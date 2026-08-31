@@ -226,18 +226,21 @@ export function Sheet({ title, onClose, children }: { title: string; onClose: ()
 
 // --- Category / direction chrome ------------------------------------------
 
-export const CATEGORY_META: Record<Category, { label: string; emoji: string }> = {
-  salary: { label: 'Salary/income', emoji: '💰' },
-  food: { label: 'Food', emoji: '🍽️' },
-  shopping: { label: 'Shopping', emoji: '🛍️' },
-  transport: { label: 'Transportation', emoji: '🚗' },
-  bills: { label: 'Bills', emoji: '🧾' },
-  subscriptions: { label: 'Subscriptions', emoji: '🔁' },
-  cash: { label: 'Cash withdrawal', emoji: '🏧' },
-  fee: { label: 'Bank fee', emoji: '🏦' },
-  transfer: { label: 'Transfer', emoji: '↔️' },
-  savings: { label: 'Savings', emoji: '🐷' },
-  other: { label: 'Other', emoji: '•' },
+// Colors are the validated data-viz categorical palette (light/dark steps).
+// Used by the spending-by-category chart; identity is always reinforced with a
+// label + emoji, so color is secondary encoding.
+export const CATEGORY_META: Record<Category, { label: string; emoji: string; color: { light: string; dark: string } }> = {
+  salary: { label: 'Salary/income', emoji: '💰', color: { light: '#008300', dark: '#008300' } },
+  food: { label: 'Food', emoji: '🍽️', color: { light: '#eb6834', dark: '#d95926' } },
+  shopping: { label: 'Shopping', emoji: '🛍️', color: { light: '#e87ba4', dark: '#d55181' } },
+  transport: { label: 'Transportation', emoji: '🚗', color: { light: '#2a78d6', dark: '#3987e5' } },
+  bills: { label: 'Bills', emoji: '🧾', color: { light: '#4a3aa7', dark: '#9085e9' } },
+  subscriptions: { label: 'Subscriptions', emoji: '🔁', color: { light: '#1baf7a', dark: '#199e70' } },
+  cash: { label: 'Cash withdrawal', emoji: '🏧', color: { light: '#eda100', dark: '#c98500' } },
+  fee: { label: 'Bank fee', emoji: '🏦', color: { light: '#e34948', dark: '#e66767' } },
+  transfer: { label: 'Transfer', emoji: '↔️', color: { light: '#0891b2', dark: '#22b8cf' } },
+  savings: { label: 'Savings', emoji: '🐷', color: { light: '#16a34a', dark: '#22c55e' } },
+  other: { label: 'Other', emoji: '•', color: { light: '#94a3b8', dark: '#94a3b8' } },
 }
 
 export function CategoryIcon({ category }: { category: Category }) {

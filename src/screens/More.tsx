@@ -5,6 +5,7 @@ import type { Screen } from '../components/TabBar'
 import type { ThemePref } from '../types'
 
 const ITEMS: { key: Screen; icon: string; label: string; sub: string }[] = [
+  { key: 'insights', icon: '📈', label: 'Insights', sub: 'Where your money goes by category' },
   { key: 'budget', icon: '🧮', label: 'Budget & Rules', sub: 'Income, bills, buffers, limits' },
   { key: 'automation', icon: '⚡', label: 'Automation', sub: 'Apple Shortcuts import (simulated)' },
   { key: 'testsms', icon: '🧪', label: 'Test SMS Lab', sub: 'Parse a message → import' },
