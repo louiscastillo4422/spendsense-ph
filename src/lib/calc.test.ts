@@ -7,6 +7,7 @@ import {
   saveNowRecommendation,
   pickGoalForContribution,
   goalProjectedDate,
+  spendingByCategory,
 } from './calc'
 import { makeState, tx, goal, bill } from './testFixtures'
 
@@ -45,6 +46,42 @@ describe('accountBalance', () => {
   it('totalAvailable sums both accounts', () => {
     const state = makeState()
     expect(totalAvailable(state)).toBe(25000) // 20000 + 5000
+  })
+})
+
+describe('spendingByCategory', () => {
+  const from = new Date('2026-08-20T00:00:00.000Z')
+
+  it('groups money-out by category, sorted largest-first, with shares', () => {
+    const state = makeState({
+      transactions: [
+        tx({ direction: 'out', amount: 300, category: 'food', timestamp: '2026-08-10T10:00:00.000Z' }),
+        tx({ direction: 'out', amount: 100, category: 'food', timestamp: '2026-08-11T10:00:00.000Z' }),
+        tx({ direction: 'out', amount: 100, category: 'transport', timestamp: '2026-08-12T10:00:00.000Z' }),
+        tx({ direction: 'fee', amount: 50, category: 'fee', timestamp: '2026-08-13T10:00:00.000Z' }),
+        // Excluded from spend:
+        tx({ direction: 'in', amount: 5000, category: 'salary', timestamp: '2026-08-05T10:00:00.000Z' }),
+        tx({ direction: 'out', amount: 200, category: 'transfer', isTransfer: true, timestamp: '2026-08-06T10:00:00.000Z' }),
+      ],
+    })
+    const { items, total } = spendingByCategory(state, 'month', from)
+    expect(total).toBe(550) // 400 food + 100 transport + 50 fee
+    expect(items.map((i) => i.category)).toEqual(['food', 'transport', 'fee'])
+    expect(items[0]).toMatchObject({ amount: 400, count: 2 })
+    expect(Math.round(items[0].pct)).toBe(73) // 400 / 550
+    // Neither income nor transfer appears.
+    expect(items.some((i) => i.category === 'salary' || i.category === 'transfer')).toBe(false)
+  })
+
+  it('the 30-day window includes recent spend the calendar-month view drops', () => {
+    const state = makeState({
+      transactions: [
+        tx({ direction: 'out', amount: 100, category: 'food', timestamp: '2026-08-15T10:00:00.000Z' }),
+      ],
+    })
+    const sept = new Date('2026-09-01T00:00:00.000Z')
+    expect(spendingByCategory(state, 'month', sept).total).toBe(0) // different calendar month
+    expect(spendingByCategory(state, '30d', sept).total).toBe(100) // 17 days ago
   })
 })
 

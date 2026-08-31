@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { parseMessage, maskMessage } from './parser'
+import type { ParseRule } from '../types'
 
 const FALLBACK = '2026-08-31T00:00:00.000Z'
 
@@ -25,6 +26,37 @@ describe('parseMessage — category hints', () => {
   it('categorises a known biller as bills', () => {
     const p = parseMessage('BPI: Your account was deducted P1,500.00 for MERALCO on August 04, 2026 09:36:46 AM.', FALLBACK)
     expect(p.category).toBe('bills')
+  })
+})
+
+describe('parseMessage — user rules', () => {
+  const rule = (partial: Partial<ParseRule> = {}): ParseRule => ({
+    id: 'r1',
+    label: 'Test',
+    account: 'any',
+    match: 'kuya joe',
+    category: 'food',
+    enabled: true,
+    ...partial,
+  })
+
+  it('a user rule overrides the built-in keyword guess', () => {
+    const msg = 'You have paid P120.00 GCash to KUYA JOE on 08-14-26 08:24:38 PM.'
+    expect(parseMessage(msg, FALLBACK).category).toBe('other') // no built-in hint
+    expect(parseMessage(msg, FALLBACK, [rule()]).category).toBe('food')
+  })
+
+  it('an account-scoped rule only applies to that account', () => {
+    const gcashMsg = 'You have paid P120.00 GCash to KUYA JOE on 08-14-26 08:24:38 PM.'
+    const bpiMsg = 'BPI: Your account was deducted P120.00 for KUYA JOE on August 04, 2026 09:36:46 AM.'
+    const bpiRule = [rule({ account: 'bpi' })]
+    expect(parseMessage(gcashMsg, FALLBACK, bpiRule).category).toBe('other') // wrong account, rule skipped
+    expect(parseMessage(bpiMsg, FALLBACK, bpiRule).category).toBe('food') // right account
+  })
+
+  it('ignores a disabled rule', () => {
+    const msg = 'You have paid P120.00 GCash to KUYA JOE on 08-14-26 08:24:38 PM.'
+    expect(parseMessage(msg, FALLBACK, [rule({ enabled: false })]).category).toBe('other')
   })
 })
 

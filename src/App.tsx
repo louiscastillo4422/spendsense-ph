@@ -15,6 +15,7 @@ import { TestSMS } from './screens/TestSMS'
 import { Security } from './screens/Security'
 import { Reports } from './screens/Reports'
 import { Insights } from './screens/Insights'
+import { ParserRules } from './screens/ParserRules'
 
 function Shell() {
   const { state } = useApp()
@@ -38,10 +39,11 @@ function Shell() {
       {screen === 'more' && <More navigate={setScreen} />}
       {screen === 'budget' && <Budget />}
       {screen === 'automation' && <Automation />}
-      {screen === 'testsms' && <TestSMS />}
+      {screen === 'testsms' && <TestSMS navigate={setScreen} />}
       {screen === 'security' && <Security />}
       {screen === 'reports' && <Reports />}
       {screen === 'insights' && <Insights />}
+      {screen === 'parserrules' && <ParserRules />}
 
       <ToastHost />
       <TabBar current={screen} onChange={setScreen} />

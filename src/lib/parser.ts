@@ -198,11 +198,18 @@ function firstIndex(text: string, words: string[]): number {
   return min
 }
 
-function detectCategory(text: string, direction: ParsedDirection, learned: ParseRule[]): Category {
+function detectCategory(
+  text: string,
+  direction: ParsedDirection,
+  learned: ParseRule[],
+  institution: AccountId | 'unknown',
+): Category {
   const l = text.toLowerCase()
-  // User-learned rules win first.
+  // User rules win first. A rule scoped to one account only applies to that
+  // account (or when the institution could not be identified).
   for (const r of learned) {
-    if (r.enabled && r.match && l.includes(r.match.toLowerCase())) return r.category
+    const scopeOk = r.account === 'any' || institution === 'unknown' || r.account === institution
+    if (r.enabled && scopeOk && r.match && l.includes(r.match.toLowerCase())) return r.category
   }
   if (direction === 'transfer') return 'transfer'
   if (direction === 'fee') return 'fee'
@@ -233,7 +240,7 @@ export function parseMessage(
   const reference = extractReference(text)
   const counterparty = extractCounterparty(text)
   const timestamp = extractTimestamp(text, fallbackIso)
-  const category = detectCategory(text, direction, learnedRules)
+  const category = detectCategory(text, direction, learnedRules, institution)
 
   if (attachedFee !== null) {
     notes.push(

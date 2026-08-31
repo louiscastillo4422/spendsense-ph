@@ -10,8 +10,9 @@ export type Screen =
   | 'security'
   | 'reports'
   | 'insights'
+  | 'parserrules'
 
-const SECONDARY: Screen[] = ['more', 'budget', 'automation', 'testsms', 'security', 'reports', 'insights']
+const SECONDARY: Screen[] = ['more', 'budget', 'automation', 'testsms', 'security', 'reports', 'insights', 'parserrules']
 
 const TABS: { key: Screen; label: string; icon: string }[] = [
   { key: 'home', label: 'Home', icon: '🏠' },

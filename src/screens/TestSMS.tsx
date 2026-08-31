@@ -9,8 +9,9 @@ import { SAMPLE_MESSAGES } from '../lib/seed'
 import { peso, fmtDateTime } from '../lib/format'
 import { uid } from '../lib/storage'
 import type { AccountId, Category, Direction, ParsedMessage, Transaction } from '../types'
+import type { Screen } from '../components/TabBar'
 
-export function TestSMS() {
+export function TestSMS({ navigate }: { navigate: (s: Screen) => void }) {
   const { state, addTransaction, notify } = useApp()
   const [text, setText] = useState('')
   const [parsed, setParsed] = useState<ParsedMessage | null>(null)
@@ -212,6 +213,13 @@ export function TestSMS() {
           </Card>
         </>
       )}
+
+      <button
+        onClick={() => navigate('parserrules')}
+        className="w-full mt-2 mb-4 rounded-2xl border border-slate-200 dark:border-slate-800 px-4 py-3 text-left text-[13px] text-slate-600 dark:text-slate-300"
+      >
+        🏷️ <b>Wrong category?</b> Teach the parser with a rule →
+      </button>
     </ScreenShell>
   )
 }

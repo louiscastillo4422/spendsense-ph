@@ -121,6 +121,6 @@ Repo: https://github.com/louiscastillo4422/spendsense-ph (private).
 
 ## Possible next steps (not yet built)
 
-- Spending-by-category chart on Home or a dedicated Insights screen.
-- Editable parser templates UI (the rule engine exists; expose more of it).
 - The native SwiftUI plan (App Intents + SwiftData + local notifications + Shortcuts) is in README.md.
+- A "Where your money goes" teaser card on Home linking to Insights (chart lives on the Insights screen).
+- Category budget-limit progress (the `categoryLimits` setting exists) shown against Insights spend.

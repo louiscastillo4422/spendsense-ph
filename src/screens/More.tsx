@@ -9,6 +9,7 @@ const ITEMS: { key: Screen; icon: string; label: string; sub: string }[] = [
   { key: 'budget', icon: '🧮', label: 'Budget & Rules', sub: 'Income, bills, buffers, limits' },
   { key: 'automation', icon: '⚡', label: 'Automation', sub: 'Apple Shortcuts import (simulated)' },
   { key: 'testsms', icon: '🧪', label: 'Test SMS Lab', sub: 'Parse a message → import' },
+  { key: 'parserrules', icon: '🏷️', label: 'Parser rules', sub: 'Teach it merchants → categories' },
   { key: 'reports', icon: '✉️', label: 'Email reports', sub: 'Daily & weekly friend check-ins' },
   { key: 'security', icon: '🔒', label: 'Security & Privacy', sub: 'Lock, masking, export, delete' },
 ]
