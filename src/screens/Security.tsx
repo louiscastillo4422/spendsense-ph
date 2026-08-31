@@ -1,14 +1,32 @@
-import { useState, type ReactNode } from 'react'
+import { useRef, useState, type ReactNode } from 'react'
 import { useApp } from '../state/store'
 import { ScreenShell, PageHeader } from '../components/Screen'
 import { Card, SectionTitle, Button, Toggle, Segmented, Sheet } from '../components/ui'
-import { exportState } from '../lib/storage'
-import type { NotificationPrivacy } from '../types'
+import { exportState, importStateFromFile } from '../lib/storage'
+import type { AppState, NotificationPrivacy } from '../types'
 
 export function Security() {
-  const { state, patchSettings, wipeAll, notify } = useApp()
+  const { state, patchSettings, wipeAll, importData, notify } = useApp()
   const s = state.settings
   const [confirmWipe, setConfirmWipe] = useState(false)
+  const [pendingImport, setPendingImport] = useState<AppState | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  async function onFilePicked(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = '' // allow re-picking the same file later
+    if (!file) return
+    try {
+      const next = await importStateFromFile(file)
+      setPendingImport(next)
+    } catch (err) {
+      notify({ title: "Couldn't import that file", body: err instanceof Error ? err.message : 'Unknown error', tone: 'bad' })
+    }
+  }
+
+  const importCounts = pendingImport
+    ? `${pendingImport.transactions.length} transactions, ${pendingImport.goals.length} goals, ${pendingImport.bills.length} bills`
+    : ''
 
   const previews: Record<NotificationPrivacy, string> = {
     full: '₱1,250 went out from BPI • Food. About ₱3,400 safe to spend until Aug 15.',
@@ -64,6 +82,19 @@ export function Security() {
         <Button variant="soft" className="w-full" onClick={() => { exportState(state); notify({ title: 'Data exported', body: 'A JSON backup was downloaded.', tone: 'good' }) }}>
           ⬇ Export my data (JSON)
         </Button>
+        <Button variant="soft" className="w-full" onClick={() => fileInputRef.current?.click()}>
+          ⬆ Import data (JSON)
+        </Button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="application/json,.json"
+          className="hidden"
+          onChange={onFilePicked}
+        />
+        <p className="text-[12px] text-slate-500">
+          Import a backup exported from SpendSense to move your data to this device. It replaces everything here.
+        </p>
         <Button variant="danger" className="w-full" onClick={() => setConfirmWipe(true)}>
           Delete all data
         </Button>
@@ -74,6 +105,32 @@ export function Security() {
         SpendSense PH is an independent tool. It is not endorsed by, connected to, or operated by Bank of the Philippine Islands
         or GCash. Trademarks belong to their respective owners.
       </div>
+
+      {pendingImport && (
+        <Sheet title="Replace your data?" onClose={() => setPendingImport(null)}>
+          <p className="text-[15px] text-slate-700 dark:text-slate-200 leading-snug mb-2">
+            This backup holds {importCounts}. Importing it replaces everything currently on this device.
+            This can’t be undone.
+          </p>
+          <p className="text-[13px] text-slate-500 mb-4">Export your current data first if you want to keep it.</p>
+          <div className="flex gap-2">
+            <Button
+              variant="primary"
+              className="flex-1"
+              onClick={() => {
+                importData(pendingImport)
+                setPendingImport(null)
+                notify({ title: 'Data imported', body: 'Your backup is now loaded on this device.', tone: 'good' })
+              }}
+            >
+              Replace and import
+            </Button>
+            <Button variant="ghost" onClick={() => setPendingImport(null)}>
+              Cancel
+            </Button>
+          </div>
+        </Sheet>
+      )}
 
       {confirmWipe && (
         <Sheet title="Delete all data?" onClose={() => setConfirmWipe(false)}>

@@ -41,6 +41,8 @@ interface Store {
   // Data lifecycle
   resetToSample: () => void
   wipeAll: () => void
+  /** Replace all state with a validated backup (from Security > Import). */
+  importData: (next: AppState) => void
 
   // Toasts (used for simulated notifications)
   toasts: Toast[]
@@ -150,6 +152,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         }),
       deleteRule: (id) => mutate((s) => ({ ...s, parseRules: s.parseRules.filter((r) => r.id !== id) })),
       resetToSample: () => setState(makeSeedState()),
+      importData: (next) => setState(next),
       wipeAll: () => {
         clearState()
         setState(emptyState())

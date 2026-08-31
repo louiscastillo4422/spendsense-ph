@@ -121,8 +121,6 @@ Repo: https://github.com/louiscastillo4422/spendsense-ph (private).
 
 ## Possible next steps (not yet built)
 
-- Import-data button (re-import the JSON that Security > Export produces) so demo data can move
-  between machines. localStorage does not sync through git.
 - Spending-by-category chart on Home or a dedicated Insights screen.
 - Editable parser templates UI (the rule engine exists; expose more of it).
 - The native SwiftUI plan (App Intents + SwiftData + local notifications + Shortcuts) is in README.md.

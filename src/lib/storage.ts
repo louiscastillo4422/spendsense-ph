@@ -45,6 +45,43 @@ export function exportState(state: AppState): void {
   URL.revokeObjectURL(url)
 }
 
+/**
+ * Parse and validate a JSON backup produced by exportState. Throws an Error
+ * with a friendly message if the file is not a valid SpendSense export, so the
+ * caller can surface it without ever loading a broken state.
+ */
+export function parseImportedState(text: string): AppState {
+  let data: unknown
+  try {
+    data = JSON.parse(text)
+  } catch {
+    throw new Error("That file isn't valid JSON. Pick a file exported from SpendSense.")
+  }
+
+  const s = data as Partial<AppState>
+  const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null
+
+  if (!isObject(s) || s.version !== 1) {
+    throw new Error("This doesn't look like a SpendSense backup (version mismatch).")
+  }
+  if (!isObject(s.accounts) || !isObject(s.accounts.bpi) || !isObject(s.accounts.gcash)) {
+    throw new Error('The backup is missing account data.')
+  }
+  if (!Array.isArray(s.transactions) || !Array.isArray(s.bills) || !Array.isArray(s.goals) || !Array.isArray(s.parseRules)) {
+    throw new Error('The backup is missing transactions, bills, goals or parse rules.')
+  }
+  if (!isObject(s.settings) || !isObject(s.settings.income) || !isObject(s.automation)) {
+    throw new Error('The backup is missing settings.')
+  }
+
+  return data as AppState
+}
+
+/** Read a File chosen from an <input type="file"> and validate it as a backup. */
+export function importStateFromFile(file: File): Promise<AppState> {
+  return file.text().then(parseImportedState)
+}
+
 export function uid(prefix = 'tx'): string {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`
 }
